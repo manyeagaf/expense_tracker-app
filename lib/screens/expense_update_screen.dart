@@ -1,56 +1,43 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:date_time_picker/date_time_picker.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+import 'package:expenses_tracker/helpers/DBHelper.dart';
+import 'package:expenses_tracker/models/expense.dart';
+import 'package:expenses_tracker/screens/expense_detail_screen.dart';
+import 'package:expenses_tracker/screens/expenses_history_screen.dart';
+import 'package:expenses_tracker/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:expenses_tracker/helpers/DBHelper.dart';
-import 'package:expenses_tracker/models/expense.dart';
-import 'package:expenses_tracker/screens/home_screen.dart';
+class ExpenseUpdateScreen extends StatefulWidget {
+  Expense expense;
+  ExpenseUpdateScreen({required this.expense});
 
-class AddExpenseScreen extends StatefulWidget {
   @override
-  State<AddExpenseScreen> createState() => _AddExpenseScreenState();
+  State<ExpenseUpdateScreen> createState() => _ExpenseUpdateScreenState();
 }
 
-class _AddExpenseScreenState extends State<AddExpenseScreen> {
+class _ExpenseUpdateScreenState extends State<ExpenseUpdateScreen> {
   final amountController = TextEditingController();
   final typeController = TextEditingController();
-  final dateController = TextEditingController()
-    ..text = DateTime.now().toString();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    amountController.dispose();
-    typeController.dispose();
-    super.dispose();
-  }
+  final dateController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    context.read<DBHelper>().getExpenses();
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(40),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.5,
+        height: MediaQuery.of(context).size.height * 0.6,
         padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(
-              'Add expense',
+              'Edit expense',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 30.0,
@@ -63,10 +50,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             TextField(
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                hintText: "Cost",
+                hintText: widget.expense.cost.toString(),
                 border: OutlineInputBorder(),
               ),
               controller: amountController,
+              // ..text = widget.expense.cost.toString(),
+              onChanged: (value) {},
             ),
             SizedBox(
               height: 10.0,
@@ -74,15 +63,19 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             TextField(
               textCapitalization: TextCapitalization.sentences,
               decoration: InputDecoration(
-                hintText: "What did you spend on?",
+                hintText: widget.expense.type,
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {},
               controller: typeController,
+              // ..text = widget.expense.type,
+            ),
+            SizedBox(
+              height: 10.0,
             ),
             DateTimePicker(
               type: DateTimePickerType.dateTimeSeparate,
-              controller: dateController,
+              controller: dateController..text = widget.expense.date,
               dateMask: 'd MMMM, yyyy',
               // initialValue: DateTime.now().toString(),
               firstDate: DateTime(2000),
@@ -117,38 +110,39 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                   style:
                       TextButton.styleFrom(backgroundColor: Color(0xff57C8FB)),
                   onPressed: () async {
-                    if (amountController.text != '' &&
-                        typeController.text != '') {
-                      final expense = Expense(
-                          id: value.lastExpenseId + 1,
-                          cost: int.parse(amountController.text),
-                          type: typeController.text,
-                          date: dateController.text,
-                          balance: value.salary -
-                              (value.thisMonth +
-                                  int.parse(amountController.text)));
-                      await value.addExpenses(expense);
-                      await value.getExpenses();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => HomeScreen(),
-                        ),
-                      );
-                    } else {
-                      final snackBar = SnackBar(
-                        content: const Text(
-                            'Please enter cost amount and what you spent on'),
-                        action: SnackBarAction(
-                          label: 'Close',
-                          onPressed: () {},
-                        ),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    }
+                    final newExpense = Expense(
+                      id: widget.expense.id,
+                      cost: amountController.text == ''
+                          ? widget.expense.cost
+                          : int.parse(amountController.text),
+                      type: typeController.text == ''
+                          ? widget.expense.type
+                          : typeController.text,
+                      date: dateController.text,
+                      balance: value.salary -
+                          (value.thisMonth +
+                              (amountController.text == ''
+                                  ? widget.expense.cost
+                                  : int.parse(amountController.text))),
+                    );
+
+                    await value.updateExpense(newExpense);
+
+                    await value.getExpenses();
+
+                    final snackBar = SnackBar(
+                      content: const Text('Expense updated successfully'),
+                      action: SnackBarAction(
+                        label: 'Close',
+                        onPressed: () {},
+                      ),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => HomeScreen()));
                   },
                   child: Text(
-                    "Add",
+                    "Save",
                     style: TextStyle(fontSize: 25.0, color: Colors.white),
                   ),
                 );

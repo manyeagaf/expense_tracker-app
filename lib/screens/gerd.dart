@@ -107,7 +107,7 @@ class ExpenseDataSource extends DataGridSource {
                       ? e.cost.toStringAsFixed(2)
                       : '-' + e.cost.toStringAsFixed(2)),
               DataGridCell<String>(
-                  columnName: 'type', value: e.date.split("T")[0]),
+                  columnName: 'date', value: e.date.substring(0, 10)),
               DataGridCell<String>(
                   columnName: 'salary', value: e.balance.toStringAsFixed(2)),
             ]))
@@ -122,14 +122,15 @@ class ExpenseDataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(
-        cells: row.getCells().map<Widget>((e) {
-      return Container(
-        alignment: Alignment.center,
-        padding: EdgeInsets.all(8.0),
-        child: Text(
-          e.value.toString(),
-        ),
-      );
-    }).toList());
+      cells: row.getCells().map<Widget>((e) {
+        return Container(
+          alignment: Alignment.center,
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            e.value.toString(),
+          ),
+        );
+      }).toList(),
+    );
   }
 }

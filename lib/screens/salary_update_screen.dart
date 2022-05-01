@@ -15,12 +15,21 @@ class SalaryUpdateScreen extends StatefulWidget {
 
 class _SalaryUpdateScreenState extends State<SalaryUpdateScreen> {
   final salaryController = TextEditingController();
+  final dateController = TextEditingController()
+    ..text = DateTime.now().toString();
 
   @override
   void initState() {
     // TODO: implement initState
-    salaryController.dispose();
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    salaryController.dispose();
+    super.dispose();
   }
 
   @override
@@ -58,10 +67,10 @@ class _SalaryUpdateScreenState extends State<SalaryUpdateScreen> {
                   onPressed: () async {
                     if (salaryController.text != "") {
                       final expense = Expense(
-                        id: value.lengthOfExpenses + 1,
+                        id: value.lastExpenseId + 1,
                         cost: int.parse(salaryController.text),
                         type: "Salary",
-                        date: DateTime.now().toIso8601String(),
+                        date: DateTime.now().toString(),
                         balance: int.parse(salaryController.text),
                       );
                       final salary = Salary(

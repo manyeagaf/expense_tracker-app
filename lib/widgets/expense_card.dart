@@ -20,63 +20,68 @@ class _ExpenseCardState extends State<ExpenseCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) => ExpenseDetailScreen(expense: widget.expense)));
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => ExpenseDetailScreen(
+            expense: widget.expense,
+          ),
+        );
       },
       child: Card(
         elevation: 3.0,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 4.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 5.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CircleAvatar(
-                backgroundColor: Color(0xff57C8FB),
-                child: Text(
-                  "₵",
-                  style: TextStyle(fontSize: 25.0, color: Colors.white),
-                ),
-                radius: 25.0,
-              ),
-              SizedBox(
-                width: 8.0,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  SizedBox(
-                    width: 150,
+                  CircleAvatar(
+                    backgroundColor: Color(0xff57C8FB),
                     child: Text(
-                      widget.expense.type,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: TextStyle(
-                        fontSize: 19.0,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xff57C8FB),
-                      ),
+                      "₵",
+                      style: TextStyle(fontSize: 25.0, color: Colors.white),
                     ),
+                    radius: 30.0,
                   ),
                   SizedBox(
-                    height: 10.0,
+                    width: 8.0,
                   ),
-                  Text(
-                    widget.expense.date.split("T")[0] +
-                        " " +
-                        widget.expense.date.split("T")[1].substring(0, 8),
-                    style:
-                        TextStyle(fontSize: 12.0, fontWeight: FontWeight.w400),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 150,
+                        child: Text(
+                          widget.expense.type,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 19.0,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xff57C8FB),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 8.0,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: Text(
+                          widget.expense.date.substring(0, 16),
+                          style: TextStyle(
+                              fontSize: 12.0, fontWeight: FontWeight.w400),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              Spacer(),
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   widget.expense.type == "Salary"
                       ? Text(
@@ -96,12 +101,12 @@ class _ExpenseCardState extends State<ExpenseCard> {
                           ),
                         ),
                   SizedBox(
-                    height: 10.0,
+                    height: 8.0,
                   ),
-                  SizedBox(
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: Text(
                       '₵${oCcy.format(widget.expense.balance)}',
-                      overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                       style: TextStyle(
                           fontSize: 12.0, fontWeight: FontWeight.w400),

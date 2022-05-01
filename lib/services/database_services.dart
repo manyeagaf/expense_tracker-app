@@ -50,7 +50,7 @@ class DatabaseService {
         id: 0,
         cost: 0,
         type: "Nothing",
-        date: DateTime.now().toIso8601String(),
+        date: DateTime.now().toString(),
         balance: 0);
     db.insert("expenses", expense.toMap());
 

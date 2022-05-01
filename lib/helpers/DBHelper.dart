@@ -7,8 +7,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class DBHelper with ChangeNotifier {
-  // bool _fetching = false;
-  // bool get fetching => _fetching;
   List<Expense> _expensesList = [];
   int _salary = 0;
   int get salary => _salary;
@@ -22,42 +20,55 @@ class DBHelper with ChangeNotifier {
   List<Salary> _salaryList = [];
   int _thisMonth = 0;
   int get thisMonth => _thisMonth;
+
+  int _lastExpenseId = 0;
+
+  int get lastExpenseId => _lastExpenseId;
+
+  double _todayExpenses = 0;
+
+  double get todayExpenses => _todayExpenses;
+  //Declare our database instance
   final DatabaseService _dbService = DatabaseService();
   DatabaseService get dbService => _dbService;
 
-  int _lengthOfExpenses = 0;
-  int get lengthOfExpenses => _lengthOfExpenses;
-
+  //Fetch the list of expenses from our db and do all the neccessary calculations
   Future<void> getExpenses() async {
     _error = true;
     _expensesList = await _dbService.expenses();
 
     _salaryList = await _dbService.salrary();
     _salary = _salaryList[0].amount;
+    _lastExpenseId = _expensesList[0].id;
 
     try {
       _totalExpenses = 0;
       _thisMonth = 0;
+      _todayExpenses = 0;
       _expensesList.forEach((expense) {
         if (expense.type.toLowerCase() != 'salary') {
           _totalExpenses = _totalExpenses + expense.cost;
-          final expenseDate = expense.date.split('-');
-          final dateNow = DateTime.now().toIso8601String().split("-");
-          if (expenseDate[0] == dateNow[0] && expenseDate[1] == dateNow[1]) {
+          final expenseDate = expense.date;
+          final dateNow = DateTime.now().toString();
+
+          if (expense.date.substring(0, 7) == dateNow.substring(0, 7)) {
             _thisMonth = _thisMonth + expense.cost;
           }
+          if (expense.date.substring(0, 10) == dateNow.substring(0, 10)) {
+            _todayExpenses = _todayExpenses + expense.cost;
+          }
         }
-        _lengthOfExpenses = _expensesList.length;
       });
     } catch (e) {
       _error = true;
       _errorMessage = e.toString();
-      print(_errorMessage);
     }
     _error = false;
+    //Notify all the listeners
     notifyListeners();
   }
 
+  //Perform a create operation to add expense to the database
   Future<void> addExpenses(Expense expense) async {
     try {
       await _dbService.insertExpense(expense);
@@ -69,6 +80,7 @@ class DBHelper with ChangeNotifier {
     notifyListeners();
   }
 
+  //Update the salary
   Future<void> updateSalary(Salary salary) async {
     try {
       _dbService.insertSalary(salary);
@@ -80,6 +92,25 @@ class DBHelper with ChangeNotifier {
     notifyListeners();
   }
 
+  //Perform an update operation to update an expense
+  Future<void> updateExpense(Expense expense) async {
+    try {
+      await _dbService.updateExpense(expense);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  //Delete an expense
+  Future<void> deleteExpense(Expense expense) async {
+    try {
+      await _dbService.deleteExpense(expense.id);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  //Clear all the data in the database
   Future<void> clearData() async {
     try {
       await _dbService.clearDb();

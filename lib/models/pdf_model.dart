@@ -9,7 +9,7 @@ class PdfModel {
   static Future<File> generateTable(List<Expense> expenses) async {
     final pdf = Document();
 
-    final headers = ['id', 'type', 'Cost in cedis', "date", "Balance in cedis"];
+    final headers = ['id', 'type', 'Cost', "date", "Balance"];
 
     final data = expenses
         .map((expense) => [
@@ -18,9 +18,7 @@ class PdfModel {
               expense.type.toLowerCase() == "salary"
                   ? expense.cost.toStringAsFixed(2)
                   : "-${expense.cost.toStringAsFixed(2)}",
-              expense.date.split('T')[0] +
-                  " " +
-                  expense.date.split('T')[1].substring(0, 8),
+              expense.date.substring(0, 16),
               expense.balance.toStringAsFixed(2)
             ])
         .toList();
@@ -31,7 +29,7 @@ class PdfModel {
       ),
     ));
 
-    return saveDocument(name: 'expenses.pdf', pdf: pdf);
+    return saveDocument(name: 'my_expenses.pdf', pdf: pdf);
   }
 
   static Future<File> saveDocument({
