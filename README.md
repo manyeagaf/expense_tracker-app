@@ -1,6 +1,14 @@
 # expenses_tracker
 
-A new Flutter project.
+An app for budgeting and tracking of personal expenses and spending.
+
+## Features
+- Update salary
+- Set expense limit
+- Add Expense
+- Edit Expense
+- Delete Expense
+
 
 ## Getting Started
 
